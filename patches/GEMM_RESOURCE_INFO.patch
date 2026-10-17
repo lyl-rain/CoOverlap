@@ -1,0 +1,36 @@
+diff --git a/csrc/gemm/gemm_runner.h b/csrc/gemm/gemm_runner.h
+--- a/csrc/gemm/gemm_runner.h
++++ b/csrc/gemm/gemm_runner.h
+@@ -56,6 +56,13 @@
+     GemmRunner();
+     ~GemmRunner();
+ 
++    // Read-only preflight introspection. Does not change GEMM execution.
++    uintptr_t workspace_ptr() const noexcept { return reinterpret_cast<uintptr_t>(workspace_); }
++    size_t workspace_bytes() const noexcept { return workspace_size_; }
++    uintptr_t handle_ptr() const noexcept { return reinterpret_cast<uintptr_t>(handle_); }
++    uintptr_t scale_a_ptr() const noexcept { return reinterpret_cast<uintptr_t>(d_scale_a_); }
++    uintptr_t scale_b_ptr() const noexcept { return reinterpret_cast<uintptr_t>(d_scale_b_); }
++
+     // BF16 GEMM: D = alpha * A @ B^T + beta * C
+     // A: (M, K) row-major bf16
+     // B: (N, K) row-major bf16 (transposed as col-major in GEMM)
+diff --git a/csrc/bindings.cpp b/csrc/bindings.cpp
+--- a/csrc/bindings.cpp
++++ b/csrc/bindings.cpp
+@@ -432,6 +432,15 @@
+     // ── GemmRunner ──
+     py::class_<GemmRunner>(m, "GemmRunner")
+         .def(py::init<>())
++        .def("resource_info", [](const GemmRunner& self) {
++            py::dict info;
++            info["workspace_ptr"] = self.workspace_ptr();
++            info["workspace_bytes"] = self.workspace_bytes();
++            info["handle_ptr"] = self.handle_ptr();
++            info["scale_a_ptr"] = self.scale_a_ptr();
++            info["scale_b_ptr"] = self.scale_b_ptr();
++            return info;
++        })
+         .def("bf16_gemm", [](GemmRunner& self,
+                               uintptr_t A, uintptr_t B, uintptr_t D,
+                               int M, int N, int K,

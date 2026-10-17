@@ -1,0 +1,103 @@
+# macOS and Python-generated files
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local Python environments and package caches
+.venv/
+venv/
+env/
+.conda/
+.tox/
+pip-wheel-metadata/
+
+# Credentials and machine-local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.secret
+.ssh/
+.aws/
+.netrc
+id_rsa
+id_ed25519
+credentials.json
+secrets.json
+
+# Model checkpoints, weights, and compiled engines
+checkpoints/
+weights/
+*.safetensors
+*.ckpt
+*.pth
+*.pt
+*.onnx
+*.engine
+*.plan
+*.gguf
+
+# Large raw inputs and generated experiment artifacts
+data/raw/
+datasets/
+raw_traces/
+runs/
+outputs/
+artifacts/
+*.nsys-rep
+*.ncu-rep
+*.sqlite
+*.mcap
+*.bag
+*.db3
+*.parquet
+
+# Retained dual-slot raw outputs and isolated diagnostic binaries
+reports/m1_recovery/dual_slot_lifecycle/cooverlap_*/
+reports/m1_recovery/dual_slot_resource/isolated_artifacts/lib/
+
+# Retain enhanced probe raw evidence locally, exclude large copied source/data
+reports/m1_recovery/pair01_access_recovery/raw/
+reports/m1_recovery/pair01_access_recovery/source/
+reports/m1_recovery/pair01_access_recovery/*.tar.gz
+
+# Retained short B2 replay raw evidence
+reports/m1_recovery/b2_observation/raw/
+reports/m1_recovery/b2_observation/*.tar.gz
+
+# Successful bounded replay evidence retained locally
+reports/m1_recovery/b2_observation_retry/raw/
+reports/m1_recovery/b2_observation_retry/*.tar.gz
+
+# GitHub source publication: preserve these locally, outside Git history.
+/reports/
+/data/
+/Student_B_CoOverlap_Revised.docx
+/*.pdf
+/*.pptx
+
+# Compiled GPU extensions, binary snapshots and experiment archives
+*.so
+*.dylib
+*.o
+*.a
+*.cubin
+*.fatbin
+*.ptx
+*.bin
+*.npy
+*.npz
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+# Editor and local deployment settings
+.idea/
+.vscode/
