@@ -76,6 +76,7 @@ reports/m1_recovery/b2_observation_retry/raw/
 reports/m1_recovery/b2_observation_retry/*.tar.gz
 
 # GitHub source publication: preserve these locally, outside Git history.
+# Keep reports ignored; reviewed source snapshots are individually tracked on codex/week2.
 /reports/
 /data/
 /Student_B_CoOverlap_Revised.docx
