@@ -1,3 +1,13 @@
+## GitHub 主线集成：2026-11-12
+
+`integration/vla-runtime` 已推送，并建立 [PR #3](https://github.com/lyl-rain/CoOverlap/pull/3)：纯 Python KV 生命周期、有限回放、期限记账及离线 Trace 工具。本轮获授权修正文档状态、重跑 CPU 检查，并在复验和最新 Head 核对通过后使用普通 Merge Commit 合入 main。最终合并状态和 Merge Commit 以 PR 记录为准；没有运行 GPU，不更名默认分支、不删除研究分支。可运行入口和明确排除项见 [README](../README.md) 与 [集成范围和交接](MAINLINE_INTEGRATION.md)。
+
+研究路线、M1–M5 验收和 GPU 性能结论未因本次工程集成发生变化。下面的旧状态保留为历史快照，不是当前整仓已重新验证的结果。
+
+---
+
+## 以下为原 main 历史内容（2026-10-17 快照）
+
 # CoOverlap 项目状态
 
 更新时间：2026-10-17

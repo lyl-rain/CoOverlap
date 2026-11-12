@@ -1,0 +1,77 @@
+{
+  "scope": "Selected CPU sources and existing deadline dependencies only; not a data manifest or whole-history rights audit",
+  "files": [
+    {
+      "path": "scripts/m2_executor.py",
+      "sha256": "7890fa54896dd65635be741fddc50771bbc1b42b120abd6122c75170c6841654",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "9b681cfb2970b49b0e8c25b8a28bce43912232bb",
+      "source_sha256": "7890fa54896dd65635be741fddc50771bbc1b42b120abd6122c75170c6841654",
+      "copied_unchanged": true,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    },
+    {
+      "path": "scripts/m2_replay_driver.py",
+      "sha256": "efd5d5b6621b708874d55d71c0d2e3c5c45241dd97dfb3480a015a615ac43d8d",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "a7b67b3b16488d0e98f94a9bda2048970eba9136",
+      "source_sha256": "efd5d5b6621b708874d55d71c0d2e3c5c45241dd97dfb3480a015a615ac43d8d",
+      "copied_unchanged": true,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    },
+    {
+      "path": "scripts/validate_m2_cpu.py",
+      "sha256": "d4058819e00af5d40c0a4fabdb9d0281d439206330a1bbb8002142db619020a5",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "89e703c45b1abbf0023868190240091f95d59e94",
+      "source_sha256": "595d62dd8786f8d19d81f5736c5522b90d303e2b246d5442cfea5095a4fdda0b",
+      "copied_unchanged": false,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    },
+    {
+      "path": "scripts/period_obligation_stats.py",
+      "sha256": "5117994144ee9fdb4b65c262c24683964e41332153b4f79d8a5a25f891401f0b",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "506f6fe6433d0b1aa3fae7adf4637ff2049f424f",
+      "source_sha256": "5117994144ee9fdb4b65c262c24683964e41332153b4f79d8a5a25f891401f0b",
+      "copied_unchanged": true,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    },
+    {
+      "path": "scripts/validate_period_obligations_cpu.py",
+      "sha256": "1e2c0fb363342eb684b73be3a431bbd9adfc5947b4946bb6d5d64c2e2b9e1764",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "367478e627e2875d96723da00814c82ad1394f71",
+      "source_sha256": "1e2c0fb363342eb684b73be3a431bbd9adfc5947b4946bb6d5d64c2e2b9e1764",
+      "copied_unchanged": true,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    },
+    {
+      "path": "scripts/day1_pm_cpu_trace_repair_20261111/analyze_trace.py",
+      "sha256": "809f3ccf02cb116576e3a560021c8c47b1d3ff3badcf91b9638a3af5b65094d1",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "d57fb4d5c6e323cb47462464a4d59f0a1cedd4d4",
+      "source_sha256": "809f3ccf02cb116576e3a560021c8c47b1d3ff3badcf91b9638a3af5b65094d1",
+      "copied_unchanged": true,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    },
+    {
+      "path": "scripts/day1_pm_cpu_trace_repair_20261111/analyze_cpu_gaps.py",
+      "sha256": "e247cb25170b34fd0679581d0507739d253dde8a0663211db72f74a0e79c59b1",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "2f6a9f93ab6726c2512790de309c35bd3eb2cc6d",
+      "source_sha256": "e247cb25170b34fd0679581d0507739d253dde8a0663211db72f74a0e79c59b1",
+      "copied_unchanged": true,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    },
+    {
+      "path": "scripts/day1_pm_cpu_trace_repair_20261111/test_gap_accounting.py",
+      "sha256": "542b390fe996cf680dadb201459c55d34256fa608a09a2e7b04a62330548a335",
+      "source_commit": "9408bf9283bc72d534651273cef1dce69652580f",
+      "source_blob_sha": "9e5ff8c18c6d0db860acbefa1c2b52c7594c1b51",
+      "source_sha256": "542b390fe996cf680dadb201459c55d34256fa608a09a2e7b04a62330548a335",
+      "copied_unchanged": true,
+      "classification": "project CPU contracts/replay or standard-library trace analysis; no external model implementation"
+    }
+  ]
+}

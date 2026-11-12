@@ -1,3 +1,5 @@
+> 原 main 历史说明保留；当前可运行的主线集成候选及限制请先阅读 [README](../README.md) 和 [功能映射](FUNCTION_MAP.md)。历史实验描述不构成本轮 GPU 复验。
+
 # CoOverlap 项目简报
 
 ## 文档定位
