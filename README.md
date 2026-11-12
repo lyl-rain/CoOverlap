@@ -1,55 +1,74 @@
-# CoOverlap
+# CoOverlap: Deadline-Aware GPU Execution Runtime for Embodied AI Agents
 
-**Predictable Chunked VLA Execution on Embedded GPUs**
+## Project Overview
 
-CoOverlap 研究固定模型计算和周期预算下，真实 VLM/Context 与 Action Expert 的 GPU 执行组织。主实验平台为 Jetson AGX Orin 64GB，当前候选负载为 FlashRT / Pi0.5。
+CoOverlap 研究具身智能体推理底层的 GPU 执行组织、资源管理和周期时限。当前主线集成候选提供可独立运行的 **CPU 生命周期与回放合约、期限记账和离线 Profiling 工具**；它不是已完成 GPU 部署的统一 Runtime。
 
-本仓库保存 M1 第一周的独立适配层、正确性检查、profiling、周期回放、Green Context 功能探针和离线分析源码。不同版本对应不同阶段的实际实验；历史失败路径保留，不表示所有脚本均已通过或适合直接运行。
+此候选从现有 main 选择性引入已审代码，不合并整个归档。main 原有源码和历史说明保留；新功能与历史 GPU 实验的验证范围分别说明。
 
-## 当前研究状态
-
-- 固定工作量：BF16、双视角 224×224 图像、49 个语言 token、Encoder 长度 561、18 层 Encoder、动作长度 50、完整 10 步 Expert 去噪。
-- 已完成两档预算的有限周期回放、独立重复和固定 CPU 访存干扰验证。
-- 限定 Encoder 路径已有串行、普通双流、固定 8+8 SM 和合法边界归还的数值检查及真实 Kernel 时间线。
-- 边界归还缓解了固定分区的尾段损失，但未取得相对串行的完整窗口优势；当前双块周期计划也未显示稳定改善。
-- M1 有限测量已提交收口审核。B1/B2 路线尚未由用户确认，未进入 M2。
-
-详细状态见 [项目状态](docs/PROJECT_STATUS.md) 和 [项目简报](docs/PROJECT_BRIEF.md)。历史 FAIL、INCOMPLETE 和 UNKNOWN 均保留；有限样本不代表可靠 p99.9、最优 k 或稳定性能收益。
-
-## 目录
+## Architecture
 
 ```text
-scripts/                 本项目编写的验证、执行、采集和分析源码
-patches/                 隔离诊断资源查询的最小差异
-docs/PROJECT_BRIEF.md     研究目标、边界与验收标准
-docs/PROJECT_STATUS.md    各阶段事实、负面结果与当前状态
-docs/CODE_MAP.md          代码入口与版本说明
-AGENTS.md                项目协作与实验规则
+固定输入快照 / 合法块计划
+          ↓
+VersionedKV：构建 → 完成事件 → 发布 → 读者绑定 → 安全回收
+          ↓
+有限回放驱动：固定释放时刻 + 显式回调 + 完整作业分母
+          ↓
+期限记账：按时 / 确定违约 / 不确定 / 未完成
+
+保存的 SQLite / Host 记录 → 离线区间并集、交集与 API 间隙分析
 ```
 
-## 使用前提
+[功能映射](docs/FUNCTION_MAP.md)列出实际依赖与检查边界。代码保持现有路径，没有制造空 Runtime 目录。
 
-本仓库是已测实验的源码归档，不包含一键部署所需的全部外部资源：
+## Runtime Components
 
-1. GPU 脚本依赖板端已验收的 FlashRT 源码、PyTorch/CUDA 环境及隔离诊断扩展。
-2. 真实 checkpoint、固定输入与统一数值参考、编译产物、部署清单和原始 trace 保存在独立实验存储中，未上传到 GitHub。
-3. 部分历史入口固定了板端路径、资源 SHA 和单次运行协议；直接复制到另一台机器不能视为复现成功。
-4. 涉及频率节点、systemd 或采集权限的脚本须先审查其白名单、资源归属和恢复路径。不要从历史命令直接启动新的模型批次。
+- [m2_executor.py](scripts/m2_executor.py)：双槽 KV 状态机、输入哈希、完成事件、版本发布、读者固定和安全回收。它管理合约，不分配 GPU 内存或执行模型数学。
+- [m2_replay_driver.py](scripts/m2_replay_driver.py)：使用同一组调用回调运行相邻／恢复两种有限顺序；失败也保留完整义务账本。CPU 测试使用符号后端，没有假造模型适配器。
 
-所有阶段版本和限制见 [代码入口说明](docs/CODE_MAP.md)。FlashRT、CUDA、PyTorch 等第三方组件遵循其各自许可；模型权重不在本仓库中分发。
+## Scheduling Components
 
-## CPU 检查示例
+[period_obligation_stats.py](scripts/period_obligation_stats.py)和执行器中的统计保留固定释放时刻、完整分母、不确定完成区间、积压与刷新记录。这里有可测试的回放组织和记账能力，没有新接入实际 GPU 优先级调度器。
 
-以下检查使用假资源与静态代码断言，不加载 checkpoint、不执行 GPU 模型、不写真实频率节点：
+## Profiling and Benchmarking
+
+在仓库根目录运行：
 
 ```bash
-python3 scripts/validate_root_trace_cpu_v9.py
+python3 -B -m profiling --help
+python3 -B -m profiling --list
+python3 -B -m profiling check
 ```
 
-它验证 v9 权限例外、账本、身份限制和既有数学路径的静态一致性，不能代替板端数值或性能验收。
+[Profiling 入口](profiling/__main__.py)指向实际[Trace 分析](scripts/day1_pm_cpu_trace_repair_20261111/analyze_trace.py)和[CPU 提交间隙分析](scripts/day1_pm_cpu_trace_repair_20261111/analyze_cpu_gaps.py)。合成检查验证区间并集／交集和 API 状态记账，不需要 Nsight、CUDA、模型或原始 Trace。
 
-## 数据管理
+真实记录分析依赖匹配的 SQLite 表、NVTX 标签和 Host 文件；这些记录未附带。分析器会写入输入目录下的 analysis，因此不要直接在冻结原始目录重跑。本轮没有执行完整真实 Trace 分析，也不汇报新的耗时或违约率收益。
 
-GitHub 仅保存源码和必要的小型说明文档。`.gitignore` 排除了模型、输入快照、大型原始实验数据、原始 trace、编译扩展、凭据、环境、演示文稿和内部任务书。完整实验结果与 SHA 清单保留在项目本地及板端存储；代码中的相关路径不意味着这些数据已包含在仓库。
+## Testing and Reproducibility
 
-本次 GitHub 归档没有启动新的模型进程，也没有修改设备状态。
+仅需 Python 3.9.6 或兼容版本及标准库；本轮没有安装依赖。
+
+```bash
+python3 -B -m tests --help
+python3 -B -m tests --list
+python3 -B -m tests
+python3 -B tools/check_cpu.py
+```
+
+测试包含 **20项原有 KV／回放测试、7类期限检查、6项 Trace 合成测试、5项入口回归测试**。原 M2 套件另有3项模型适配／GPU 入口检查未纳入；它们不是通过或跳过后冒充完整23项通过。保留的20项断言未改写，详见[集成范围](docs/MAINLINE_INTEGRATION.md)。
+
+[源码指纹](docs/PUBLICATION_SOURCE_INDEX.json)记录已选文件与公开归档的对应关系。CPU 通过不能替代 GPU 数值、性能、空间配额或 CUDA Graph 验收。
+
+## Current Limitations
+
+- 尚未引入 Pi0.5 数学适配器、GPU 模型执行入口、FlashRT 源码或冻结实验快照；未核实的来源／许可文件保持在归档及原研究版本中。候选没有完整 GPU 推理部署入口。
+- 原 main 已跟踪的 M1 GPU 及采集脚本继续保留，不能自动视为本轮检查通过；它们需要外部模型、设备和匹配配置。历史[代码说明](docs/CODE_MAP.md)、[项目简报](docs/PROJECT_BRIEF.md)及[状态记录](docs/PROJECT_STATUS.md)不是最新性能结论。
+- 本次不消除 main 旧历史中的个人路径或未完成的来源审查，也不新增统一 LICENSE 或声称整个历史已获得分发许可。新增范围及剩余风险见[公开范围](docs/PUBLICATION_SCOPE.md)。
+- 当前只准备本地候选；默认分支仍为 main。推送、主线合并和 main → vla-runtime 官方更名需要后续明确批准。
+
+## Relevance to Agent Operating Systems
+
+上层智能体系统可提出任务与时限，下层执行器管理模型子块、状态归属和完成事件。现有生命周期、固定释放回放和记账工具支持这一层面的系统研究。当前没有统一 OS 服务接口、任务接入或资源协商协议，没有接入灵玑OS，也没有跨智能体的 OS 级服务调度集成。
+
+[资产指南](docs/ASSET_GUIDE.md)区分此候选、原 main 内容和完整历史归档。

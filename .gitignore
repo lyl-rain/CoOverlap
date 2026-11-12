@@ -76,6 +76,7 @@ reports/m1_recovery/b2_observation_retry/raw/
 reports/m1_recovery/b2_observation_retry/*.tar.gz
 
 # GitHub source publication: preserve these locally, outside Git history.
+# Frozen snapshots stay in the archive; this candidate adds no reports.
 /reports/
 /data/
 /Student_B_CoOverlap_Revised.docx
@@ -101,3 +102,38 @@ reports/m1_recovery/b2_observation_retry/*.tar.gz
 # Editor and local deployment settings
 .idea/
 .vscode/
+
+# Local research material and derived outputs (retain on disk)
+/paper1/
+/paper2/
+/analysis/
+/exports/
+/figures/
+/tmp/
+/output/
+/local_audit/
+/*.docx
+/*.md.before_*
+/CoOverlap_*.md
+# Prepared bundles are frozen local evidence, not primary source entries.
+/scripts/**/prepared/
+/scripts/**/source/
+/scripts/**/fixed_k8_unrun/
+# Object files, caches and machine-specific build products
+/build/
+/dist/
+*.egg-info/
+CMakeCache.txt
+CMakeFiles/
+
+# Additional local authentication / signing material (not source licenses)
+.git-credentials
+.npmrc
+.pypirc
+.azure/
+.kube/
+.gcloud/
+id_dsa
+id_ecdsa
+*.ppk
+*.jks
