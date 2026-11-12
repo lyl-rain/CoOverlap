@@ -1,52 +1,51 @@
 # CoOverlap
 
-**Predictable Chunked VLA Execution on Embedded GPUs**
+CoOverlap 是面向具身智能体的嵌入式 GPU 执行与资源调度研究。本仓库已有 VLM 分块、Expert 执行、版本化 KV、串行/双流适配和资源探针等实验源码；它不是已安装模型的一键运行环境。
 
-CoOverlap 研究固定模型计算和周期预算下，真实 VLM/Context 与 Action Expert 的 GPU 执行组织。主实验平台为 Jetson AGX Orin 64GB，当前候选负载为 FlashRT / Pi0.5。
+本次最小公开增量提供**可在 CPU 独立运行的检查入口，以及来自实际项目的 Trace 记账分析和测试**。不新增来源待核实的模型改写工具、GPU 冻结快照或原始实验数据。
 
-本仓库保存 M1 与第二周 M2/M3 的独立适配层、正确性检查、执行器、profiling、周期回放、资源探针和离线分析源码。不同版本对应不同冻结实验；保留的历史失败版本不表示所有脚本均已通过或适合直接运行。
+## 可运行检查
 
-## 第二周源码归档
+本轮验证环境为 Python 3.9.6，仅使用标准库，不安装 CUDA、PyTorch或模型：
 
-`codex/week2` 分支归档截至 2026-10-27 已存在的第二周源码及必要项目说明。根目录 `scripts/` 之外，部分 M2/M3 源码原本存放在被忽略的 `reports/` 下；本分支只逐项纳入选定源码，保留原路径与相互导入关系，不提交实验数据或整个报告目录。
-
-- [归档与交接说明](docs/WEEK2_SOURCE_HANDOFF.md)
-- [源码清单与 SHA256](docs/WEEK2_SOURCE_INDEX.json)
-- [代码入口与阶段边界](docs/CODE_MAP.md)
-
-归档保留历史版本和修订版。版本数字较大不表示替代所有旧入口；应先查 `CODE_MAP.md`，避免把旧失败版本作为当前入口。原始冻结源码未因本次归档而修改。
-
-## 当前研究状态
-
-- 固定候选负载：Pi0.5、BF16、双视角 224×224、49 个语言 token、Encoder 长度 561、18 层 Encoder、50 动作、完整 10 步 Expert。
-- M1 在声明的有限范围内已收口：隔离 SM 配额响应、四模式限定 Encoder 配对、真实 Kernel 时间线及周期回放。SM 级证据不代表 TPC 映射；边界归还未证明优于串行。
-- M2 已按约定范围验收：合法切分与接续、版本 KV、固定输入及完整工作量回放、完成 Event 和统计；已取得阶段公平串行基线，不代表所有时序或长期保证。
-- M3 已实现两块/三块及边界优先；B5 的 180 ms 同批样本中周期违约为串行 8/16、boundary 0/16，刷新均 8/8 按时。这是有限同进程对照，不能外推总体违约率或数量级目标。
-- B9、B10 计划验证分别出现错误接受和样本层面过度拒绝。选择器有效性未验收；修正后的合法调度搜索被时限截断，不能宣称已穷尽。
-- Graph r1 真实接口和 CPU 准备已完成；GPU 捕获、正确性和性能均未运行。CPU 检查通过不是 GPU 验收。
-- M3 未全面验收，B2 仍为候选，M4 未启动。刷新约减半或违约率降十倍仍是挑战目标。
-
-详细事实、历史失败和适用范围见 [项目状态](docs/PROJECT_STATUS.md)、[项目简报](docs/PROJECT_BRIEF.md) 与 [代码入口](docs/CODE_MAP.md)。共享文档中指向原始报告、数据、图和协议文件的路径可能只在项目本地存在，不表示已公开上传。
-
-## 目录
-
-```text
-scripts/                 共用执行、验证、测量、回放与分析源码
-reports/m2_common/       逐项选入的 M2 源码快照，不含原始报告或数据
-reports/m3_b2/           逐项选入的 M3 候选、选择器、分析及 Graph 源码
-patches/                 既有隔离诊断资源查询差异
-docs/                    项目说明、代码地图与归档交接
-AGENTS.md                项目协作与实验规则
+```bash
+python3 -B tools/check_cpu.py --help
+python3 -B tools/check_cpu.py --list
+python3 -B tools/check_cpu.py
 ```
 
-## 使用前提
+入口运行三组检查：既有版本化 KV/有限回放合约、期限与完整分母记账，以及新增的合成 Trace 区间检查。也可单独运行新增测试：
 
-本仓库是源码归档，不是完整的一键部署包：
+```bash
+python3 -B scripts/day1_pm_cpu_trace_repair_20261111/test_gap_accounting.py
+```
 
-1. GPU 脚本依赖板端已验收的 FlashRT、PyTorch/CUDA、checkpoint 和既有扩展；这些第三方组件与权重未在本仓库分发。
-2. 固定输入、数值参考、冻结配置、运行凭据、SHA 部署清单、预测/成本实测输入及原始 trace 保存在独立实验存储中。部分 CPU 测试也依赖这些私有夹具或归档。
-3. 部分代码固定了原实验路径和单次协议。源码可阅读不等于在新机器直接执行即可复现；缺少配置或数据不能以替换精度、层数、去噪数绕过。
-4. 部署、提交、恢复、收集和 root 导出脚本均为历史或待审入口。不得由公开源码推断新的模型批次、SSH、提权或硬件操作已获授权；真实硬件操作遵守 `AGENTS.md`。
-5. `reports/` 继续整体忽略；仅审核过的选定源码被明确跟踪。任务书、PPT、原始报告、数据、二进制、模型和凭据保留在本地或板端。
+测试不依赖私有数据，不访问 GPU 或真实时钟控制节点。通过不能解释为 CUDA 数值、物理重叠或性能通过。不要对所有历史 `test_*.py` 自动发现并执行：部分入口需要数据或会写结果。
 
-本次同步只整理、静态检查和发布源码，没有启动 GPU 模型或修改设备状态。
+## 本次代码范围
+
+| 路径 | 实际用途 |
+| --- | --- |
+| `tools/check_cpu.py` | 有限清单、逐项超时、失败返回非零的CPU检查入口 |
+| `scripts/day1_pm_cpu_trace_repair_20261111/analyze_trace.py` | 读取已有Nsight SQLite与Host记录，建立API/内核对应关系，计算区间并集、交集和时间线 |
+| `scripts/day1_pm_cpu_trace_repair_20261111/analyze_cpu_gaps.py` | 对同一Trace划分API未启动、进行中、已返回待执行及缺少映射的区间，并用独立算法复核 |
+| `scripts/day1_pm_cpu_trace_repair_20261111/test_gap_accounting.py` | 合成区间测试，检验重叠去重、Graph父级API范围及未知映射处理 |
+| `scripts/m2_executor.py`、`scripts/period_obligation_stats.py` | 沿用Week2版本的KV生命周期与期限记账，不引入新版K8接口 |
+
+分析器处理真实Trace时依赖匹配的SQLite schema、NVTX和关联记录；会在输入目录的 `analysis/` 写派生文件。原始数据本次未发布，不把真实分析命令列为开箱即用入口。分析前应使用工作副本，避免覆盖旧结果。
+
+[资产导航](docs/ASSET_GUIDE.md)说明代码—数据关系；[公开范围](docs/PUBLICATION_SCOPE.md)说明选择与排除；[来源指纹](docs/PUBLICATION_SOURCE_INDEX.json)只覆盖本次三个原样选入的分析/测试文件。
+
+## Relevance to Agent Operating Systems
+
+CoOverlap 研究智能体推理任务落到嵌入式GPU后的执行组织。潜在关系是：上层智能体系统给出任务和时限，下层执行代码管理模型子块、资源配额、完成事件和版本生命周期。已有周期回放、记账及Trace分析用于解释响应和完整刷新代价。
+
+目前没有统一的外部操作系统服务接口、任务接入协议或资源协商接口，没有接入灵玑OS，也未实现操作系统级跨智能体服务调度。本次新增的是分析与CPU测试能力。
+
+## 历史源码与边界
+
+Week2及更早的源码和记录仍保留。`PROJECT_STATUS`、`PROJECT_BRIEF`、`CODE_MAP`和Week2交接文档均已标记为截至2026-10-27的归档，其中“当前”不代表最新状态。
+
+真实GPU入口依赖板端FlashRT/Pi0.5、PyTorch/CUDA、自定义扩展、权重、固定输入与参考数据。它们未随本次增量新增分发；未验证在新机器可部署，也不提供猜测的安装清单或未经本次核验的加速声明。
+
+本次排除个人目录路径和权利来源待核实的新增文件；这**不消除基线及远端历史已有的路径和许可风险**。未自动补LICENSE，历史第三方材料的分发依据仍需另行核实。大数据、Trace、论文、模型和内部资料保留原存储。

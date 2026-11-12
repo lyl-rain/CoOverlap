@@ -1,0 +1,26 @@
+{
+  "scope": "three selected analysis/test sources; not a raw data or all-repository manifest",
+  "files": [
+    {
+      "path": "scripts/day1_pm_cpu_trace_repair_20261111/analyze_trace.py",
+      "sha256": "809f3ccf02cb116576e3a560021c8c47b1d3ff3badcf91b9638a3af5b65094d1",
+      "source_commit": "e9ed47a01d3efc1c4eff7ae8cdd3d539564623fb",
+      "copied_unchanged": true,
+      "classification": "project CPU trace accounting / synthetic tests; no external model implementation or rewriting"
+    },
+    {
+      "path": "scripts/day1_pm_cpu_trace_repair_20261111/analyze_cpu_gaps.py",
+      "sha256": "e247cb25170b34fd0679581d0507739d253dde8a0663211db72f74a0e79c59b1",
+      "source_commit": "e9ed47a01d3efc1c4eff7ae8cdd3d539564623fb",
+      "copied_unchanged": true,
+      "classification": "project CPU trace accounting / synthetic tests; no external model implementation or rewriting"
+    },
+    {
+      "path": "scripts/day1_pm_cpu_trace_repair_20261111/test_gap_accounting.py",
+      "sha256": "542b390fe996cf680dadb201459c55d34256fa608a09a2e7b04a62330548a335",
+      "source_commit": "e9ed47a01d3efc1c4eff7ae8cdd3d539564623fb",
+      "copied_unchanged": true,
+      "classification": "project CPU trace accounting / synthetic tests; no external model implementation or rewriting"
+    }
+  ]
+}
