@@ -1,4 +1,6 @@
-# 最小公开增量：代码与证据导航
+# 公开代码与证据导航
+
+当前功能索引见 [FUNCTION_MAP](FUNCTION_MAP.md)。CPU运行器已移至 `tests/runner.py`，`python -m tests` 为规范入口；`tools/check_cpu.py` 兼容旧命令。`python -m profiling` 提供原分析器导航与合成检查。原始分析器位置和来源SHA保持不变。
 
 | 功能 | 源码/入口 | 数据与验证边界 |
 | --- | --- | --- |

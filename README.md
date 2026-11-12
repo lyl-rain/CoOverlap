@@ -1,51 +1,95 @@
-# CoOverlap
+# CoOverlap: Deadline-Aware GPU Execution Runtime for Embodied AI Agents
 
-CoOverlap 是面向具身智能体的嵌入式 GPU 执行与资源调度研究。本仓库已有 VLM 分块、Expert 执行、版本化 KV、串行/双流适配和资源探针等实验源码；它不是已安装模型的一键运行环境。
+## Project Overview
 
-本次最小公开增量提供**可在 CPU 独立运行的检查入口，以及来自实际项目的 Trace 记账分析和测试**。不新增来源待核实的模型改写工具、GPU 冻结快照或原始实验数据。
+CoOverlap 研究具身智能体推理底层的嵌入式 GPU 执行、资源管理和周期时限调度。仓库包含 VLM 分块、Action Expert、版本化 KV、CUDA 适配、资源探针、回放和离线分析的多版本科研实现，尚不是可直接部署的统一 Runtime 产品。
 
-## 可运行检查
+本次按功能增加导航和可执行入口，保留原始模型计算、冻结脚本和实验路径。没有新增 GPU 算法或性能结果，也未重新引入此前排除的模型改写工具和数据。
 
-本轮验证环境为 Python 3.9.6，仅使用标准库，不安装 CUDA、PyTorch或模型：
+## Architecture
+
+```text
+模型/Expert回调 → 执行后端与CUDA事件 → VersionedKV发布/读者/回收
+                          ↑
+               固定释放与合法边界执行计划
+                          ↓
+                  周期、刷新和期限记账
+                          ↓
+              Trace / Host记录 → 离线分析与CPU检查
+```
+
+实际目录分层如下；Runtime/Scheduler/Benchmark 暂保留原源码位置，以功能索引连接，不创建空目录或把历史代码包装成新产品：
+
+```text
+profiling/    可运行的分析导航与合成检查入口
+tests/        CPU检查运行器与入口回归测试
+tools/       旧命令兼容入口
+scripts/     既有执行器、调度、探针、回放及分析源码，路径保持
+reports/     Git已跟踪的冻结源码快照；数据不随新增代码发布
+docs/        功能映射、分支迁移与公开范围
+```
+
+[核心功能映射](docs/FUNCTION_MAP.md)列出实际依赖、验证状态及A/B/C处理分类。
+
+## Runtime Components
+
+- [VersionedKV与合法工作序列](scripts/m2_executor.py)：输入快照、完成事件、版本发布、读者绑定和安全回收。
+- [模型调用适配](scripts/m2_pi05_ops.py) → [执行后端](scripts/m2_clean_backend.py) → [CUDA设备适配](scripts/m2_clean_cuda.py)：保留模型回调、状态留存和事件记录边界。
+- [真实模型执行入口](scripts/pi05_m2_clean.py)：依赖外部模型、参考输入和目标设备，不能当作本机Smoke Test运行。
+- [CUDA Graph历史实现](reports/m3_b2/20261023/graph_prototype_v1_r1/deployment/graph_backend.py)及 [Green Context探针](scripts/green_context_graph_probe.cu)：只作代码定位，本轮没有编译或GPU验证，也没有统一安装接口。
+
+## Scheduling Components
+
+- [期限与完整分母](scripts/period_obligation_stats.py)区分按时、确定违约、不确定和未完成。
+- [有限回放](scripts/m2_replay_driver.py)使用固定周期释放与版本轨迹。
+- [边界调度](scripts/m3_b2_core.py)与[合法切分计划](scripts/m3_b3_plan.py)分别组织派发和声明状态边界，不是任意版本可混用的通用调度器。
+
+这些代码保留在原位置；迁移需连同导入、组装和匹配快照单独验证。
+
+## Profiling and Benchmarking
 
 ```bash
-python3 -B tools/check_cpu.py --help
-python3 -B tools/check_cpu.py --list
+python3 -B -m profiling --help
+python3 -B -m profiling --list
+python3 -B -m profiling check
+```
+
+[功能入口](profiling/__main__.py)列出真实Trace分析器并运行6项合成检查，不加载模型、不读取未公开Trace。
+
+实际分析器仍是[内核/API时间线](scripts/day1_pm_cpu_trace_repair_20261111/analyze_trace.py)和[CPU提交间隙](scripts/day1_pm_cpu_trace_repair_20261111/analyze_cpu_gaps.py)。它们处理真实记录时依赖匹配的SQLite/NVTX/Host结构，并写入输入目录的analysis；不要为整理而在原始结果目录重跑。
+
+SM响应测量定位到[配额扫描](scripts/pi05_quota_sweep_v10.py)及[曲线脚本](scripts/plot_quota_sweep_v10.py)；Serial/回放定位到[m2_replay_driver](scripts/m2_replay_driver.py)。这些实验入口需要实际设备和冻结配置。本轮不宣称已重新验证Serial、双流或Green性能。
+
+## Testing and Reproducibility
+
+使用Python3.9.6及标准库验证，未安装依赖。规范入口：
+
+```bash
+python3 -B -m tests --help
+python3 -B -m tests --list
+python3 -B -m tests
+```
+
+原命令继续兼容：
+
+```bash
 python3 -B tools/check_cpu.py
 ```
 
-入口运行三组检查：既有版本化 KV/有限回放合约、期限与完整分母记账，以及新增的合成 Trace 区间检查。也可单独运行新增测试：
+检查包括23项KV/回放合约测试、7项期限检查、6项Trace测试和5项新入口回归测试。测试使用假Event和合成区间，不访问GPU或真实硬件控制节点。不要对全部历史脚本自动发现并执行。
 
-```bash
-python3 -B scripts/day1_pm_cpu_trace_repair_20261111/test_gap_accounting.py
-```
+[资产指南](docs/ASSET_GUIDE.md)、[公开范围](docs/PUBLICATION_SCOPE.md)、[原样分析源码指纹](docs/PUBLICATION_SOURCE_INDEX.json)保留来源与数据边界。模型、真实Trace和权重未新增分发；CPU通过不代替GPU数值或性能验收。
 
-测试不依赖私有数据，不访问 GPU 或真实时钟控制节点。通过不能解释为 CUDA 数值、物理重叠或性能通过。不要对所有历史 `test_*.py` 自动发现并执行：部分入口需要数据或会写结果。
+## Current Limitations
 
-## 本次代码范围
-
-| 路径 | 实际用途 |
-| --- | --- |
-| `tools/check_cpu.py` | 有限清单、逐项超时、失败返回非零的CPU检查入口 |
-| `scripts/day1_pm_cpu_trace_repair_20261111/analyze_trace.py` | 读取已有Nsight SQLite与Host记录，建立API/内核对应关系，计算区间并集、交集和时间线 |
-| `scripts/day1_pm_cpu_trace_repair_20261111/analyze_cpu_gaps.py` | 对同一Trace划分API未启动、进行中、已返回待执行及缺少映射的区间，并用独立算法复核 |
-| `scripts/day1_pm_cpu_trace_repair_20261111/test_gap_accounting.py` | 合成区间测试，检验重叠去重、Graph父级API范围及未知映射处理 |
-| `scripts/m2_executor.py`、`scripts/period_obligation_stats.py` | 沿用Week2版本的KV生命周期与期限记账，不引入新版K8接口 |
-
-分析器处理真实Trace时依赖匹配的SQLite schema、NVTX和关联记录；会在输入目录的 `analysis/` 写派生文件。原始数据本次未发布，不把真实分析命令列为开箱即用入口。分析前应使用工作副本，避免覆盖旧结果。
-
-[资产导航](docs/ASSET_GUIDE.md)说明代码—数据关系；[公开范围](docs/PUBLICATION_SCOPE.md)说明选择与排除；[来源指纹](docs/PUBLICATION_SOURCE_INDEX.json)只覆盖本次三个原样选入的分析/测试文件。
+- 同名模块和接口随实验批次变化，仍需匹配冻结运行目录；没有统一依赖锁或一键GPU部署。
+- Runtime、Scheduler与Benchmark尚未物理迁移，不能把功能导航理解为正式包接口。历史路径、源码SHA和数据位置保持。
+- 历史状态和代码地图标为归档，最新导航使用此README与功能映射；不据旧进度补造新结果。
+- 既有公开历史中的个人路径、第三方来源与许可问题仍需另行处理。未新增未审源码或LICENSE，也不声称全部历史已获分发许可。
+- [分支规范与迁移方案](docs/BRANCH_NAMING.md)只完成本地准备；远端改名、默认分支切换和PR合并均待单独批准。
 
 ## Relevance to Agent Operating Systems
 
-CoOverlap 研究智能体推理任务落到嵌入式GPU后的执行组织。潜在关系是：上层智能体系统给出任务和时限，下层执行代码管理模型子块、资源配额、完成事件和版本生命周期。已有周期回放、记账及Trace分析用于解释响应和完整刷新代价。
+上层智能体系统可提出任务与时限，下层GPU执行组织管理模型子块、资源和完成事件。CoOverlap现有生命周期、周期记账和分析代码支持这一层面的系统研究。
 
-目前没有统一的外部操作系统服务接口、任务接入协议或资源协商接口，没有接入灵玑OS，也未实现操作系统级跨智能体服务调度。本次新增的是分析与CPU测试能力。
-
-## 历史源码与边界
-
-Week2及更早的源码和记录仍保留。`PROJECT_STATUS`、`PROJECT_BRIEF`、`CODE_MAP`和Week2交接文档均已标记为截至2026-10-27的归档，其中“当前”不代表最新状态。
-
-真实GPU入口依赖板端FlashRT/Pi0.5、PyTorch/CUDA、自定义扩展、权重、固定输入与参考数据。它们未随本次增量新增分发；未验证在新机器可部署，也不提供猜测的安装清单或未经本次核验的加速声明。
-
-本次排除个人目录路径和权利来源待核实的新增文件；这**不消除基线及远端历史已有的路径和许可风险**。未自动补LICENSE，历史第三方材料的分发依据仍需另行核实。大数据、Trace、论文、模型和内部资料保留原存储。
+目前没有统一外部OS服务、任务接入或资源协商接口，没有接入灵玑OS，也没有OS级跨智能体服务调度集成。
