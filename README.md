@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-CoOverlap 研究具身智能体推理底层的 GPU 执行组织、资源管理和周期时限。当前主线集成候选提供可独立运行的 **CPU 生命周期与回放合约、期限记账和离线 Profiling 工具**；它不是已完成 GPU 部署的统一 Runtime。
+CoOverlap 研究具身智能体推理底层的 GPU 执行组织、资源管理和周期时限。本版提供可独立运行的 **CPU 生命周期与回放合约、期限记账和离线 Profiling 工具**；它不是已完成 GPU 部署的统一 Runtime。
 
-此候选从现有 main 选择性引入已审代码，不合并整个归档。main 原有源码和历史说明保留；新功能与历史 GPU 实验的验证范围分别说明。
+本次集成从原 main 选择性引入已审代码，不合并整个归档。main 原有源码和历史说明保留；新功能与历史 GPU 实验的验证范围分别说明。
 
 ## Architecture
 
@@ -62,13 +62,13 @@ python3 -B tools/check_cpu.py
 
 ## Current Limitations
 
-- 尚未引入 Pi0.5 数学适配器、GPU 模型执行入口、FlashRT 源码或冻结实验快照；未核实的来源／许可文件保持在归档及原研究版本中。候选没有完整 GPU 推理部署入口。
+- 尚未引入 Pi0.5 数学适配器、GPU 模型执行入口、FlashRT 源码或冻结实验快照；未核实的来源／许可文件保持在归档及原研究版本中。本版没有完整 GPU 推理部署入口。
 - 原 main 已跟踪的 M1 GPU 及采集脚本继续保留，不能自动视为本轮检查通过；它们需要外部模型、设备和匹配配置。历史[代码说明](docs/CODE_MAP.md)、[项目简报](docs/PROJECT_BRIEF.md)及[状态记录](docs/PROJECT_STATUS.md)不是最新性能结论。
 - 本次不消除 main 旧历史中的个人路径或未完成的来源审查，也不新增统一 LICENSE 或声称整个历史已获得分发许可。新增范围及剩余风险见[公开范围](docs/PUBLICATION_SCOPE.md)。
-- 当前只准备本地候选；默认分支仍为 main。推送、主线合并和 main → vla-runtime 官方更名需要后续明确批准。
+- 集成分支已推送，并通过 [PR #3](https://github.com/lyl-rain/CoOverlap/pull/3) 进行 GitHub 审查；实际合并状态和 Merge Commit 以该 PR 记录为准。用户已授权文档修订、CPU 复验及通过后的普通 Merge Commit；默认分支仍为 main，本次不包含分支更名或删除。
 
 ## Relevance to Agent Operating Systems
 
 上层智能体系统可提出任务与时限，下层执行器管理模型子块、状态归属和完成事件。现有生命周期、固定释放回放和记账工具支持这一层面的系统研究。当前没有统一 OS 服务接口、任务接入或资源协商协议，没有接入灵玑OS，也没有跨智能体的 OS 级服务调度集成。
 
-[资产指南](docs/ASSET_GUIDE.md)区分此候选、原 main 内容和完整历史归档。
+[资产指南](docs/ASSET_GUIDE.md)区分本次集成、原 main 内容和完整历史归档。
