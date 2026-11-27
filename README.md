@@ -45,6 +45,10 @@ python3 -B -m profiling check
 
 真实记录分析依赖匹配的 SQLite 表、NVTX 标签和 Host 文件；这些记录未附带。分析器会写入输入目录下的 analysis，因此不要直接在冻结原始目录重跑。本轮没有执行完整真实 Trace 分析，也不汇报新的耗时或违约率收益。
 
+## SmolVLA Experiments
+
+[SmolVLA 端侧调度与 LIBERO 验证](docs/smolvla/README.md)记录 Jetson AGX Orin 上的 CUDA Graph 优化、102 ms 固定周期调度对照，以及独立的 LIBERO 同步闭环验证。另附固定周期实验的逐组和配对统计。
+
 ## Testing and Reproducibility
 
 仅需 Python 3.9.6 或兼容版本及标准库；本轮没有安装依赖。

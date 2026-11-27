@@ -1,0 +1,5 @@
+round,baseline,candidate,refresh_pairs,publish_delta_median_ms,publish_shortening_median_pct,request_action_delta_median_ms,kv_first_consumed_earlier,kv_first_consume_not_observed_in_both_arms
+1,S1,E,100,-11.100925,10.436690,23.082231,0,0
+1,S2,E,100,-78.731500,45.229840,22.639310,99,1
+2,S2,E,100,-78.537029,45.222315,22.836897,99,1
+2,S1,E,100,-11.450072,10.744498,22.692782,0,0
