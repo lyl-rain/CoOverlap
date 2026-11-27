@@ -1,0 +1,7 @@
+round,arm,cycles,full_kv_publications,action_misses,cycle_misses,kv_publications_first_period,kv_publications_second_period,elastic_returns,elastic_fallbacks,elastic_deferrals,performance_valid
+1,S1,200,100,0,100,0,100,,,,true
+1,S2,200,100,0,0,0,100,,,,true
+1,E,200,100,0,0,100,0,58,42,0,true
+2,E,200,100,0,0,100,0,74,26,0,true
+2,S2,200,100,0,1,0,100,,,,true
+2,S1,200,100,0,100,0,100,,,,true
